@@ -9,6 +9,15 @@ st.title('Spectrum Data Processor')
 # File uploader
 uploaded_file = st.file_uploader("Choose a file")
 
+# Function to convert DataFrame to Excel file in memory
+@st.cache
+def convert_df_to_excel(df):
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=True)
+        writer.save()  # Save the workbook
+    return output.getvalue()  # Get the binary content
+
 if uploaded_file is not None:
     # Read the uploaded file
     stringio = StringIO(uploaded_file.getvalue().decode("utf-8"))
@@ -55,16 +64,6 @@ if uploaded_file is not None:
 
     # Display the final DataFrame in the app
     st.dataframe(final_df_aggregated)
-
-    # Option to download the final DataFrame as Excel
-    @st.cache
-    def convert_df_to_excel(df):
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=True)
-            writer.save()
-        processed_data = output.getvalue()
-        return processed_data
 
     st.download_button(
         label="Download Excel file",
