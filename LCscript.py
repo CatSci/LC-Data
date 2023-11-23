@@ -32,7 +32,7 @@ if uploaded_file is not None:
             if current_table:
                 tables[spectrum_line] = current_table
                 current_table = []
-            spectrum_line = line.strip().split('\\')[-1]  # Split and keep the part after the last backslash
+            spectrum_line = line.strip().split('\\')[-2]  # Split and keep the part after the last backslash
         elif line.strip():
             current_table.append(line.strip().split('\t'))
 
@@ -58,9 +58,6 @@ if uploaded_file is not None:
 
     # Group by rounded 'RT' and aggregate
     final_df_aggregated = final_df_pivot.groupby(rounded_rt, axis=1).sum()
-
-    #change index column to more short
-    final_df_aggregated.index=final_df_aggregated.index.str.split('\\').str[-2]
 
     # Display the final DataFrame in the app
     st.dataframe(final_df_aggregated)
