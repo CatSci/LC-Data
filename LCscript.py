@@ -15,7 +15,7 @@ def convert_df_to_excel(df):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=True)
-        writer.save()  # Save the workbook
+        writer.book.close()  # Save the workbook
     return output.getvalue()  # Get the binary content
 
 if uploaded_file is not None:
@@ -69,5 +69,5 @@ if uploaded_file is not None:
         label="Download Excel file",
         data=convert_df_to_excel(final_df_aggregated),
         file_name="processed_data.xlsx",
-        mime="application/vnd.ms-excel"
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
