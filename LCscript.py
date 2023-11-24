@@ -30,7 +30,7 @@ if uploaded_file is not None:
     #Filling NaN values with zero
     pivot_df.fillna(0, inplace=True)
 
-    merged_df = pd.DataFrame(index=df.index)
+    merged_df = pd.DataFrame(index=pivot_df.index)
     # Iterate through each pair of columns and check for merging condition
     for rt1 in pivot_df.columns:
         for rt2 in pivot_df.columns:
