@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 from io import StringIO, BytesIO
 
 # Streamlit app title
@@ -59,12 +58,33 @@ if uploaded_file is not None:
     # Group by rounded 'RT' and aggregate
     final_df_aggregated = final_df_pivot.groupby(rounded_rt, axis=1).sum()
 
+    merged_df = pd.DataFrame(index=final_df_aggregated.index)
+    # Iterate through each pair of columns and check for merging condition
+    for rt1 in final_df_aggregated.columns:
+        for rt2 in final_df_aggregated.columns:
+            if rt1 != rt2 and abs(float(rt1) - float(rt2)) <= 0.2:
+                # Check if at least one value in each row across these columns is 0
+                condition = (final_df_aggregated[rt1] == 0) | (final_df_aggregated[rt2] == 0)
+                if condition.all():  # If the condition is true for all rows
+                    # Sum the columns and use the higher RT value as the column name
+                    new_col_name = max(rt1, rt2, key=lambda x: float(x))
+                    merged_df[new_col_name] = final_df_aggregated[[rt1, rt2]].sum(axis=1)
+                    # Once columns are merged, they should not be considered again
+                    final_df_aggregated.drop([rt1, rt2], axis=1, inplace=True)
+                    break  # Break to avoid re-checking the same columns
+                # Add the remaining columns that were not merged to the merged_df
+    for col in final_df_aggregated.columns:
+        if col not in merged_df:
+            merged_df[col] = final_df_aggregated[col]
+    # Sort the columns as they might be out of order after merging
+    merged_df = merged_df.sort_index(axis=1)
+    
     # Display the final DataFrame in the app
-    st.dataframe(final_df_aggregated)
+    st.dataframe(merged_df)
 
     st.download_button(
         label="Download Excel file",
-        data=convert_df_to_excel(final_df_aggregated),
+        data=convert_df_to_excel(merged_df),
         file_name="processed_data.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
