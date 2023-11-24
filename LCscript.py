@@ -30,30 +30,39 @@ if uploaded_file is not None:
     #Filling NaN values with zero
     pivot_df.fillna(0, inplace=True)
 
-    merged_df = pd.DataFrame(index=pivot_df.index)
+    df=pivot_df
+    merged_df = pd.DataFrame(index=df.index)
+    columns_to_drop = set()  # Store columns that should be dropped after merging
+
     # Iterate through each pair of columns and check for merging condition
-    for rt1 in pivot_df.columns:
-        for rt2 in pivot_df.columns:
-            if rt1 != rt2 and abs(float(rt1) - float(rt2)) <= 0.2:
-                # Check if at least one value in each row across these columns is 0
-                condition = (pivot_df[rt1] == 0) | (pivot_df[rt2] == 0)
-                if condition.all():  # If the condition is true for all rows
-                    # Sum the columns and use the higher RT value as the column name
-                    new_col_name = max(rt1, rt2, key=lambda x: float(x))
-                    merged_df[new_col_name] = pivot_df[[rt1, rt2]].sum(axis=1)
-                    # Once columns are merged, they should not be considered again
-                    pivot_df.drop([rt1, rt2], axis=1, inplace=True)
-                    break  # Break to avoid re-checking the same columns
+    for rt1 in df.columns:
+        for rt2 in df.columns:
+            if rt1 != rt2 and rt1 not in columns_to_drop and rt2 not in columns_to_drop:
+                try:
+                    # Check the difference between rt1 and rt2 is within the specified range
+                    if abs(float(rt1) - float(rt2)) <= 0.02:
+                        # Check if at least one value in each row across these columns is 0
+                        condition = (df[rt1] == 0.0) | (df[rt2] == 0.0)
+                        if condition.any():  # If the condition is true for any row
+                            # Sum the columns and use the higher RT value as the column name
+                            new_col_name = max(rt1, rt2, key=lambda x: float(x))
+                            merged_df[new_col_name] = df[[rt1, rt2]].sum(axis=1)
+                            # Mark columns for dropping
+                            columns_to_drop.update([rt1, rt2])
+                except ValueError:
+                    # Handle cases where rt1 or rt2 cannot be converted to float
+                    continue
 
-# Add the remaining columns that were not merged to the merged_df
-    for col in pivot_df.columns:
+    # Drop the processed columns from df
+    df.drop(columns=list(columns_to_drop), axis=1, inplace=True)
+
+    # Add the remaining columns that were not merged to merged_df
+    for col in df.columns:
         if col not in merged_df:
-            merged_df[col] = pivot_df[col]
+            merged_df[col] = df[col]
 
-# Sort the columns as they might be out of order after merging
+    # Sort the columns as they might be out of order after merging
     merged_df = merged_df.sort_index(axis=1)
-
-    merged_df.reset_index(inplace=True)
 
     # Display the final DataFrame in the app
     st.dataframe(merged_df)
