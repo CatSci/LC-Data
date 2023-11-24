@@ -25,7 +25,9 @@ if uploaded_file is not None:
 
     # Pivoting the DataFrame
     # Each unique rounded 'RT (mins)' value becomes a column
-    pivot_df = df.pivot(index='Sample Name', columns='RT (mins)', values='Area')
+    pivot_df = df.pivot_table(index='Sample Name', 
+                          columns='RT (mins)', 
+                          values='Area')
 
     #Filling NaN values with zero
     pivot_df.fillna(0, inplace=True)
