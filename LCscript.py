@@ -7,7 +7,7 @@ from io import BytesIO
 st.image('./catsci-logo.svg', width=200)  # Adjust width as needed
 
 # Name of the script
-st.title('SCR-01: LC area batch script🎢')  # Replace with your script name
+st.title('SCR-01: LC area txt to xslx 🔁')  # Replace with your script name
 
 # Brief description
 st.markdown('''
