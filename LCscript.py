@@ -45,7 +45,7 @@ with st.expander("How it exactly works❓"):
     st.markdown('''
         In case if output data isn't consistent or maybe wrong, there is processing pipeline.
         1. File is uploaded to script and converted to DataFrame.
-        2. It parse only "Sample", "RT (mins)" and "Area" columns and ignore "Peak Label".
+        2. It parses only "Sample", "RT (mins)" and "Area" columns and ignores "Peak Label".
         3. "RT (mins)" are rounded to the second decimal places (e.g. 1.23).
         4. Table is transposed and grouped by "Sample" index and "RTs" columns.
         5. All absent data is filled by zeros. It happens when peak is absent at one sample and presented at other.
@@ -54,7 +54,7 @@ with st.expander("How it exactly works❓"):
         Merge works only if at least one value in each row across these columns is 0.
         So if MGears integrated big lump for two peaks. Both of them will be reported.
         7. It then drops the excess columns that are no longer needed after the merge.
-        8. And finally it exports DataFrame to Excel🔚
+        8. And finally it exports DataFrame to Excel 🔚
     ''')
 
 # Feedback collection
