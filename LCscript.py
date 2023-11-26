@@ -1,12 +1,73 @@
 import streamlit as st
+from PIL import Image
 import pandas as pd
 from io import BytesIO
 
-# Streamlit app title
-st.title('exportPeaks post-processing')
+# Logo on top left
+st.image('./catsci-logo.svg', width=200)  # Adjust width as needed
+
+# Name of the script
+st.title('LC area batch script🎢')  # Replace with your script name
+
+# Brief description
+st.markdown('''
+    This scripts helps to post-process *txt* file after extracting data by [`exportPeaks.qs`](https://www.example.com).
+    As output you will get Excel table as below, which you can easily edit:
+    |          | RT 1 | RT 2 | RT 3 | RT x |
+    |----------|------|------|------|------|
+    | Sample 1 | Area |      |      |      |
+    | Sample 2 |      |      |      |      |
+    | Sample n |      |      |      |      |
+    ''')
+
+# Spacer after table
+st.markdown('''
+    ''')
+
+# Quick instruction
+with st.expander("Quick instruction📝"):
+    st.markdown('''
+        1. Download all your *.mnova* files from Signals to one folder.
+        2. Open MestReNova
+            - Select *"Tools"* tab
+            - *Import* -> "Multi-Open Wildcard..."
+            - In the new window that opens, select folder where you saved all files and put `*.mnova` at empty box.
+            - Don't forget to tick box "Open Mnova Files into a Single Document"
+            - Wait ⌛
+        3. You can edit integration or keep it as it is. Press folder icon "Run Script" at same *"Tools"* tab.
+        4. Find and open saved script `exportPeaks.qs`
+        5. Save txt file.
+        6. Upload *txt file* to script as it is, enjoy your Excel table😊
+    ''')
+
+# Quick explanation
+with st.expander("How it exactly works❓"):
+    st.markdown('''
+        In case if output data isn't consistent or maybe wrong, there is processing pipeline.
+        1. File is uploaded to script and converted to DataFrame.
+        2. It parse only "Sample", "RT (mins)" and "Area" columns and ignore "Peak Label".
+        3. "RT (mins)" are rounded to the second decimal places (e.g. 1.23).
+        4. Table is transposed and grouped by "Sample" index and "RTs" columns.
+        5. All absent data is filled by zeros. It happens when peak is absent at one sample and presented at other.
+        6. Hard part. To solve problem of little peak shifting. It compares the "RTs" and if difference is ≤0.02 - columns are merged.
+        The final RT is highest. After merging 3.25 and 3.26, it will keep only 3.26.
+        Merge works only if at least one value in each row across these columns is 0.
+        So if MGears integrated big lump for two peaks. Both of them will be reported.
+        7. It then drops the excess columns that are no longer needed after the merge.
+        8. And finally it exports DataFrame to Excel🔚
+    ''')
+
+# Feedback collection
+st.info(
+    """
+    Need a feature that's not on here? Or script raised :red[error]?
+    [Let us know by filling response form](https://www.example.com)
+    """,
+    icon="⚗️",
+)
 
 # File uploader
-uploaded_file = st.file_uploader("Choose a file")
+uploaded_file = st.file_uploader("Upload your *.txt* file")
 
 # Function to convert DataFrame to Excel file in memory
 @st.cache
@@ -70,7 +131,7 @@ if uploaded_file is not None:
     st.dataframe(merged_df)
 
     st.download_button(
-        label="Download Excel file",
+        label="Download final Excel file",
         data=convert_df_to_excel(merged_df),
         file_name="processed_data.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
