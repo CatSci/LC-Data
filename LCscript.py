@@ -36,8 +36,8 @@ with st.expander("Quick instruction📝"):
             - Wait ⌛
         3. You can edit integration or keep it as it is. Press folder icon "Run Script" at same *"Tools"* tab.
         4. Find and open saved script `exportPeaks.qs`
-        5. Save txt file.
-        6. Upload *txt file* to script as it is, enjoy your Excel table😊
+        5. Save *txt file*.
+        6. Upload this *txt file* to this app as it is, enjoy your Excel table😊
     ''')
 
 # Quick explanation
