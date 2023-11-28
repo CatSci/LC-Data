@@ -11,7 +11,7 @@ st.title('SCR-01: LC area txt to xslx 🔁')  # Replace with your script name
 
 # Brief description
 st.markdown('''
-    This scripts helps to post-process *txt* file after extracting data by [`exportPeaks.qs`](https://www.example.com).
+    This scripts helps to post-process *txt* file after extracting data by [`exportPeaks.qs`](https://catsciltd-my.sharepoint.com/:u:/g/personal/pavel_elagin_catsci_com/EXPqf-lj-aJBrxlhIReZSpsBitqSQSnV2aoBFW0na1NmYQ?e=pwEcCP).
     As output you will get Excel table as below, which you can easily edit:
     |          | RT 1 | RT 2 | RT 3 | RT x |
     |----------|------|------|------|------|
