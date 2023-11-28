@@ -70,7 +70,7 @@ st.info(
 uploaded_file = st.file_uploader("Upload your *.txt* file")
 
 # Function to convert DataFrame to Excel file in memory
-@st.cache
+@st.cache_data
 def convert_df_to_excel(df):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -129,10 +129,66 @@ if uploaded_file is not None:
 
     # Display the final DataFrame in the app
     st.dataframe(merged_df)
-
+    # Download intermediate table
     st.download_button(
-        label="Download final Excel file",
+        label="Download Area/RT table",
         data=convert_df_to_excel(merged_df),
-        file_name="processed_data.xlsx",
+        file_name="Area_RT.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
+    st.markdown('''
+    Now we can create SP3 table with LCAP and RRT
+    ''')
+    st.latex(r'''
+    LCAP=\frac{A_{i}}{ \sum A }\qquad RRT= \frac{RT_{analyte}}{RT_{reference}}
+    ''')
+    
+    start_RT, end_RT = st.select_slider(
+    'Select a range of retention time, mins',
+    options=merged_df.columns.to_list(),
+    value=(merged_df.columns.min(), merged_df.columns.max()))
+    st.write ('You selected RT starting from', start_RT, 'to', end_RT)
+
+    option = st.selectbox(
+    'Please select relative peak for RRT calculation,mins (should be within selected range)',
+    (merged_df.columns.to_list()))
+
+    st.write('You selected relative peak:', option)
+    #RP check
+
+    if not start_RT <= option <= end_RT:
+        st.error(f'Relative time {option} is outside the range!')
+
+    if st.button('Generate SP3 table'):
+        # Select range of columns by min and max value and delete the rest
+        selected_columns = [col for col in merged_df.columns if isinstance(col, (int, float)) and start_RT <= col <= end_RT]
+        selected_data = merged_df[selected_columns]
+
+        # Calculate the sum of each row, find the ratio, and convert to percentage
+        row_sums = selected_data.iloc[:, 1:].sum(axis=1)
+        for col in selected_columns:
+            selected_data.loc[:, col] = (selected_data[col] / row_sums) * 100
+
+        selected_data = selected_data.round(2)
+        
+        #Calulate RRT
+        original_columns = selected_data.columns.tolist()
+        new_columns = [round(col / option, 2) if isinstance(col, (int, float)) else col for col in original_columns]
+
+        # Create a MultiIndex
+        multi_index = pd.MultiIndex.from_arrays([original_columns, new_columns], names=['RT', 'RRT'])
+
+        # Set MultiIndex for the columns
+        selected_data.columns = multi_index
+
+        # Download SP3 table
+        st.download_button(
+            label="Download SP3.xlsx table",
+            data=convert_df_to_excel(selected_data),
+            file_name="SP3 table.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+        # Display the final DataFrame in the app
+        st.dataframe(selected_data)
