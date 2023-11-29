@@ -166,7 +166,7 @@ if uploaded_file is not None:
         selected_data = merged_df[selected_columns]
 
         # Calculate the sum of each row, find the ratio, and convert to percentage
-        row_sums = selected_data.iloc[:, 1:].sum(axis=1)
+        row_sums = selected_data.iloc[:,:].sum(axis=1)
         for col in selected_columns:
             selected_data.loc[:, col] = (selected_data[col] / row_sums) * 100
 
