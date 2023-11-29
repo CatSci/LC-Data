@@ -61,7 +61,7 @@ with st.expander("How it exactly works❓"):
 st.info(
     """
     Need a feature that's not on here? Or script raised :red[error]?
-    [Let us know by filling response form](https://www.example.com)
+    [Let us know by filling response form](https://forms.office.com/e/xJ7ibpf5jR)
     """,
     icon="⚗️",
 )
