@@ -12,7 +12,7 @@ st.title('SCR-01: LC area txt to xslx 🔁')  # Replace with your script name
 # Brief description
 st.markdown('''
     This scripts helps to post-process *txt* file after extracting data by [`exportPeaks.qs`](https://catsciltd-my.sharepoint.com/:u:/g/personal/pavel_elagin_catsci_com/EXPqf-lj-aJBrxlhIReZSpsBitqSQSnV2aoBFW0na1NmYQ?e=pwEcCP).
-    As output you will get Excel table, which you can easily edit.
+    As output you will get Excel table, which you can easily edit for slides.
     ''')
 
 # Spacer after table
@@ -32,7 +32,12 @@ with st.expander("Quick instruction📝"):
         3. You can edit integration or keep it as it is. Press folder icon "Run Script" at same *"Tools"* tab.
         4. Find and open saved script `exportPeaks.qs`
         5. Save *txt file*.
-        6. Upload this *txt file* to this app as it is, enjoy your Excel table😊
+        6. Upload this *txt file* to this app as it is, enjoy your Excel table😊\\
+        **Creation of SP3 table**
+        1. You can create SP3 table based on previous outcome. For it you need to define starting RT peak and ending RT peak that you would like to present into table.
+        2. Use slider to define the range, the border value will be included.
+        3. Define the reference peak from the list (which automatically prepared from index row)
+        4. Push the button, enjoy SP3 table.
     ''')
 
 # Quick explanation
@@ -40,7 +45,8 @@ with st.expander("How it exactly works❓"):
     st.markdown('''
         In case if output data isn't consistent or maybe wrong, there is processing pipeline.
         1. File is uploaded to script and converted to DataFrame.
-        2. It parses only "Sample", "RT (mins)" and "Area" columns and ignores "Peak Label".
+        2. Script checks which opton was selected at radiobox and then parse "Area" or "LCAP" column.
+        2. It parses only "Sample", "RT (mins)" and "Area or LCAP" column and ignores "Peak Label".
         3. "RT (mins)" are rounded to the second decimal places (e.g. 1.23).
         4. Table is transposed and grouped by "Sample" index and "RTs" columns.
         5. All absent data is filled by zeros. It happens when peak is absent at one sample and presented at other.
@@ -49,7 +55,14 @@ with st.expander("How it exactly works❓"):
         Merge works only if at least one value in each row across these columns is 0.
         So if MGears integrated big lump for two peaks. Both of them will be reported.
         7. It then drops the excess columns that are no longer needed after the merge.
-        8. And finally it exports DataFrame to Excel 🔚
+        8. And finally it exports DataFrame (which shown on the screen) to Excel that you can download 🔚\\
+        **Creation of SP3 table**
+        1. Then scipt takes the index row of table and convert it to the list.
+        2. After that it creates slider based on previous list. Which is then take values to next code lines.
+        3. Additional selection of reference peak is depends on the list from step 1. Then it takes input value.
+        4. Range and refernce values are saved to the variable and taken into account after pressing button.
+        5. During processing script delete excess column amd then recalculate LCAP based on it's total sum of row.
+        6. Then simple data export to show and download table.
     ''')
 
 # Feedback collection
@@ -139,7 +152,6 @@ if uploaded_file is not None:
         file_name="Area_RT.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-
     st.markdown('''
     Now we can create SP3 table with LCAP and RRT
     ''')
